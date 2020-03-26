@@ -21,18 +21,37 @@ export class Auth0Provider extends Component {
     redirect_uri: window.location.origin
   };
 
-  // when this components is mounted, stars the auth0 authentication process
+  // when this components is mounted, starts the auth0 authentication process
   componentDidMount() {
     this.initializeAuth0();
   }
 
-  // initialize the auth0 library
+  // This function is triggered if the user has correctly logged in
+  handleRedirectCallback = async () => {
+    this.setState({isLoading: true});
+
+    await this.state.auth0Client.handleRedirectCallback();
+    const user = await this.state.auth0Client.getUser();
+
+    this.setState({user, isAuthenticated: true, isLoading: false});
+
+    // Updates the URL to remove the 'code='. This code can only be used once, so it needs to be removed from the URL to prevent handleRedirectCallback() from running again in the case that the user refreshes the page
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  // Checks for 'code=' in the URL. If that does exist, then go straight to the handleRedirectCallback() method. This will call Auth0's handleRedirectCallback() method and then grab the user's information. We will setState() and React will pass all this information down to the application
   initializeAuth0 = async () => {
     const auth0Client = await createAuth0Client(this.config);
-    const isAuthenticated = await auth0Client.isAuthenticated();
-    const user = isAuthenticated ? await auth0Client.getUser(): null;
+    this.setState({auth0Client});
 
-    this.setState({auth0Client, isLoading: false, isAuthenticated, user});
+    // check to see if they have been redirected after login
+    if(window.location.search.includes('code=')) {
+      return this.handleRedirectCallback();
+    }
+
+    const isAuthenticated = await auth0Client.isAuthenticated();
+    const user = isAuthenticated ? await auth0Client.getUser() : null;
+    this.setState({isLoading: false, isAuthenticated, user});
   };
 
 
