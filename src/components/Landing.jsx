@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 // Contexts
-import { Auth0Context } from '../contexts/auth0-context';
+import { useAuth0 } from '../contexts/auth0-context';
 
 const Landing = () => {
   // auth0 context
-  const {isAuthenticated, user, loginWithRedirect, logout} = useContext(Auth0Context);
+  const {isAuthenticated, user, loginWithRedirect, logout} = useAuth0();
 
   return (
     <div className='hero is-info is-fullheight'>
