@@ -38,7 +38,7 @@ export class Auth0Provider extends Component {
 
   render() {
     // destructuring
-    const {isLoading, isAuthenticated, user} = this.state;
+    const {auth0Client, isLoading, isAuthenticated, user} = this.state;
     const {children} = this.props;
 
     // contains info about current user's status of authentication
@@ -46,6 +46,10 @@ export class Auth0Provider extends Component {
       isLoading,
       isAuthenticated,
       user,
+      loginWithRedirect: (...params) => auth0Client.loginWithRedirect(...params),
+      getTokenSilently: (...params) => auth0Client.getTokenSilently(...params),
+      getIdTokenClaims: (...params) => auth0Client.getIdTokenClaims(...params),
+      logout: (...params) => auth0Client.logout(...params)
     };
 
     return (
